@@ -11,7 +11,7 @@ const todo = require('./routes/todo')
 const user = require('./routes/user')
 
 
-mongoose.connect(`mongodb://${userdb}:${passdb}@ds157320.mlab.com:57320/todo-fancy`, (err) => {
+mongoose.connect(`mongodb://${userdb}:${passdb}@ds117590.mlab.com:17590/todo-fancy`, (err) => {
   if(err) {
     console.log(`failed to connect database`)
   } else {

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user.model')
-const validate = require('../helper/check-combine')
+
 
 module.exports = {
     getUser: (req, res)=>{
@@ -22,45 +22,22 @@ module.exports = {
     signUp: (req, res)=>{
         let email = req.body.email
         let password = req.body.password
-        let valPass = validate(password)
 
-        if(password.length < 8){
-            res.status(400).json({
-                message:'password minimum 8 chars is required'
-            })
-        }else{
-            if(!valPass){
+        let user = new User({
+            email,password
+        })
+        user.save((err,result)=>{
+            if(err){
                 res.status(400).json({
-                    message:'combine alphabet and number is required'
+                    message: err.message
                 })
             }else{
-                bcrypt.hash(password,10,function(err,hash){
-                    if(err){
-                        res.status(500).jason({
-                            message:err
-                        })
-                    }else{
-                        password = hash
-                        let user = new User({
-                            email,password
-                        })
-                        user.save((err,result)=>{
-                            if(err){
-                                res.status(400).json({
-                                    message:'sign up was failed',
-                                    error: err.errmsg
-                                })
-                            }else{
-                                res.status(201).json({
-                                    message: 'user was successfuly signed up',
-                                    data:result
-                                })
-                            }
-                        })
-                    }
+                res.status(201).json({
+                    message: 'user was successfuly signed up',
+                    data:result
                 })
             }
-        }
+        })
     },
 
     createUser: (req, res)=>{
@@ -68,8 +45,11 @@ module.exports = {
         let password = req.body.password
         let role = req.body.role
         let valPass = validate(password)
-
-        if(password.length < 8){
+        if(password == undefined || email.length == undefined){
+          res.status(400).json({
+              message:'fill form first'
+          })
+        }else if(password.length < 8){
             res.status(400).json({
                 message:'password minimum 8 chars is required'
             })
@@ -92,8 +72,7 @@ module.exports = {
                         user.save((err,result)=>{
                             if(err){
                                 res.status(400).json({
-                                    message:'sign up was failed',
-                                    error: err.errmsg
+                                    message: err.errmsg
                                 })
                             }else{
                                 res.status(201).json({
@@ -111,7 +90,7 @@ module.exports = {
     signIn: (req, res)=>{
         let email = req.body.email
         let password = req.body.password
-        
+
         User.findOne({
             email
         },(err, dataUser)=>{
